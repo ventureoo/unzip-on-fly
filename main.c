@@ -155,26 +155,25 @@ cleanup:
 int main(int argc, char** argv)
 {
     curl_global_init(CURL_GLOBAL_ALL);
-    // Examples
-    const char* urls[] = {
-        "https://github.com/ventureoo/jabagram/archive/refs/heads/master.zip",
-        "https://github.com/ventureoo/nvidia-tweaks/archive/refs/heads/main.zip"
-    };
-    int arrlen = sizeof(urls) / sizeof(char*);
-    pthread_t threads[arrlen];
+    pthread_t threads[argc - 1];
 
-    for (int i = 0; i < arrlen; i++) {
-        int ret = pthread_create(&threads[i], NULL, download_archive, (void*)urls[i]);
+    if (argc < 2) {
+        fprintf(stderr, "Enter list of direct URLs to the archives you want to download\n");
+        return 1;
+    }
+
+    for (int i = 1; i < argc; i++) {
+        int ret = pthread_create(&threads[i - 1], NULL, download_archive, (void*)argv[i]);
         if (ret != 0) {
             fprintf(stderr, "Failed to spawn new thread: %d", ret);
         } else {
-            fprintf(stdin, "Thread %d gets: %s", i, urls[i]);
+            fprintf(stdin, "Thread %d gets: %s", i, argv[i]);
         }
     }
 
-    for (int i = 0; i < arrlen; i++) {
-        pthread_join(threads[i], NULL);
-        fprintf(stdin, "Thread %d finished", i);
+    for (int i = 1; i < argc; i++) {
+        pthread_join(threads[i - 1], NULL);
+        fprintf(stdin, "Thread %d finished", i - 1);
     }
 
     curl_global_cleanup();
