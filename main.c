@@ -154,13 +154,13 @@ cleanup:
 
 int main(int argc, char** argv)
 {
-    curl_global_init(CURL_GLOBAL_ALL);
-    pthread_t threads[argc - 1];
-
     if (argc < 2) {
         fprintf(stderr, "Enter list of direct URLs to the archives you want to download\n");
         return 1;
     }
+
+    curl_global_init(CURL_GLOBAL_ALL);
+    pthread_t threads[argc - 1];
 
     for (int i = 1; i < argc; i++) {
         int ret = pthread_create(&threads[i - 1], NULL, download_archive, (void*)argv[i]);
